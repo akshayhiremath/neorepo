@@ -83,14 +83,15 @@ public class Constants {
 	 * NEO utility usage message 
 	 */
 	public static final String neoUsage = " Usage: \n"+
-    		"   1. If using .bat: NeoUtility.bat <START_DATE> <END_DATE>\n"+
-    		"	2. If running direct java class: "+"\n"+
-    		"		com.akshay.client.neo.Main <START_DATE> <END_DATE>\n"+
-    		"	e.g. com.akshay.client.neo.Main 2017-11-04 2017-11-11.\n\n"+	
+    		"   Using utility:\n"+
+    		"	\tOn Windows: NeoUtility.bat <START_DATE> <END_DATE>\n"+
+    		"	\tOn Linux: NeoUtility.sh <START_DATE> <END_DATE>\n"+
+    		"	2. If running direct jar: "+"\n"+
+    		"		java -Djava.net.useSystemProxies=true -jar neo-1.1.0-SNAPSHOT-jar-with-dependencies.jar <START_DATE> <END_DATE>\n"+
+    		"	e.g. java -Djava.net.useSystemProxies=true -jar neo-1.1.0-SNAPSHOT-jar-with-dependencies.jar 2017-11-11 2017-11-18.\n\n"+	
     		"		Argument date format is yyyy-MM-dd\n"+
     		"		Maximum period between START_DATE and END_DATE could be 7 days.\n"+	
     		"		a. If only START_DATE is provided. Data will be fetched for 7 days from the START_DATE.\n"+
-    		"		b. If no argument is provided. Data will be fetched for today's date.\n"+
-    		"	Make sure all the libraries are in the classpath.";
+    		"		b. If no argument is provided. Data will be fetched for today's date.\n";
 	
 }
