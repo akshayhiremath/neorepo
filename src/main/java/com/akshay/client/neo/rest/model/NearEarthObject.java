@@ -12,6 +12,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+/**
+ * A raw Near Earth Object with all the details as obtained from the NASA service response.
+ * This has numerous fields. Each field name is self-explanatory.
+ * {@link com.akshay.client.neo.rest.model.NeoDataCollection} is a collection of NEOs in this format plus some metadata. 
+ * @author AKSHAYH
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	    "links",

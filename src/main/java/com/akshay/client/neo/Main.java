@@ -5,11 +5,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import static com.akshay.client.neo.rest.utils.Constants.usageError;
+import static com.akshay.client.neo.rest.utils.Constants.neoIntroduction;
+import static com.akshay.client.neo.rest.utils.Constants.neoUsage;
+
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.log4j.Logger;
 
+import com.akshay.client.neo.rest.exception.InputValidationException;
 import com.akshay.client.neo.rest.exception.NeoProcessorException;
 import com.akshay.client.neo.rest.exception.RestClientException;
 import com.akshay.client.neo.rest.exception.RestResponseParsingException;
@@ -24,7 +29,30 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 
 /**
- * Near Earth Object NEO data fetch utility
+ * 
+ * The class with main flow control of the Near Earth Object (NEO) data fetch utility.
+ * <p>About:
+	 *  <p>This is an utility to find some basic information about the Near Earth Objects (NEO).
+	 *  This utility sources its data from REST service hosted by NASA.<br>
+	 * 	The utility gives 3 points of information from the data in the specified date range:<br>
+	 *	         1. Total no. of NEOs appeared in the input date range.<br>
+     *           Details of:<br>
+     *           2. Largest NEO appeared in the input date range,<br>
+     *           3. Closest NEO appeared in the input date range,<br>
+ 	 *	As an input utility needs date range for which the user wants to query the data.<br>
+	 *
+ 	 *	<p>Usage:<br>
+     *           <tt>com.akshay.client.neo.Main START_DATE END_DATE<br>
+     *   			e.g. com.akshay.client.neo.Main 2017-11-04 2017-11-11</tt>
+     *
+     *           <p>Argument date format is yyyy-MM-dd<br>
+     *           Maximum period between START_DATE and END_DATE could be 7 days<br>
+     *           	a. If only START_DATE is provided. Data will be fetched for 7 days from the START_DATE<br>
+     *           	b. If no argument is provided. Data will be fetched for today's date<br>
+ *   
+ * <p>The application begins with execution of main method.<br>
+ * The class contains other supporting methods such as isValid and printNeoDetails<br> 
+ * to help the main execution with validation and console printing services.   
  * @author AKSHAYH
  *
  */
@@ -37,7 +65,6 @@ public class Main
 	private ResponseParserUtil responseParser = null;
 	private NeoDataCollection neoDataCollection = null;
 	private NeoProcessor neoProcessor = null;
-	private static String usageError = " ERROR >>>>>>>>>>>>>>>>>>>>>>>>> Plz check input parameters.\n";
 
 	public RestWebServiceClient getRestClient() {
 		return restClient;
@@ -70,7 +97,16 @@ public class Main
 	public void setNeoDataCollection(NeoDataCollection neoDataCollection) {
 		this.neoDataCollection = neoDataCollection;
 	}
-
+	
+	/**
+	 * <p>The main method of the application. The starting point.
+	 * Here 3 main dependencies necessary to do the NEO processing are set,<br>
+	 * 	a. RestClient The REST client,<br>
+	 *  b. ResponseParser REST client response parser<br>
+	 *  c. NeoProcessor  core processor to process the NEO object obtained from NASA service.<br>
+	 *  
+	 * @param args A string with application's input date or date range
+	 */
 	public static void main(String[] args)
     {   
 		Main mainInstance = new Main();
@@ -79,33 +115,19 @@ public class Main
 		mainInstance.setRestClient(new RestWebServiceClient());
 		mainInstance.setResponseParser(new ResponseParserUtil());
 		mainInstance.setNeoProcessor(new NeoProcessor());
-		
-		mainInstance.execute(dateRange);
+		try {
+				mainInstance.execute(dateRange);
+		}catch(InputValidationException e){
+			System.err.println(usageError);
+		}
 		
     }
 	
-	public void execute(String[] dateRange){
-		System.out.println(
-				"\n\n=========================================================== Near Earth Object Data Fetch Utility ===========================================================\n");
-        System.out.println(" This is an utility to find some basic information about the Near Earth Objects (NEO).\n This utility sources its data from REST service hosted by NASA "+
-        		"\n The utility gives 3 points of information from the data in the specified date range:\n"+
-        		"		1. Total no. of NEOs appeared in the input date range.\n"+
-        		"		Details of: \n"+
-        		"		2. Largest NEO appeared in the input date range,\n"+
-        		"		3. Closest NEO appeared in the input date range,\n"+
-        		" As an input utility needs date range for which the user wants to query the data.");
-        String usage = " Usage: \n"+
-        		"   1. If using .bat: NeoUtility.bat <START_DATE> <END_DATE>\n"+
-        		"	2. If running direct java class: "+"\n"+
-        		"		com.akshay.client.neo.Main <START_DATE> <END_DATE>\n"+
-        		"	e.g. com.akshay.client.neo.Main 2017-11-04 2017-11-11.\n\n"+	
-        		"		Argument date format is yyyy-MM-dd\n"+
-        		"		Maximum period between START_DATE and END_DATE could be 7 days.\n"+	
-        		"		a. If only START_DATE is provided. Data will be fetched for 7 days from the START_DATE.\n"+
-        		"		b. If no argument is provided. Data will be fetched for today's date.\n"+
-        		"	Make sure all the libraries(jars in lib dir + neo-1.0.0-SNAPSHOT.jar) are in classpath.";
+	public void execute(String[] dateRange) throws InputValidationException{
+		
+        System.out.println(neoIntroduction);
         
-        System.out.println("\n"+usage);
+        System.out.println(neoUsage);
         
         System.out.println(
         		"============================================================================================================================================================\n");
@@ -116,14 +138,14 @@ public class Main
 		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 		queryParams.add(Constants.FEED_SERVICE_PARAMETER_API_KEY, Constants.FEED_SERVICE_DEFAULT_API_KEY);
 		
+		//Validation of input arguments
 		switch (dateRange.length) {
 				case 1:
 					if(isValid(dateRange)){
 						mainServiceUrl.append(Constants.FEED_SERVICE_BY_DATE);
 						queryParams.add(Constants.FEED_SERVICE_PARAMETER_START_DATE, dateRange[0]);
 					}else{
-						System.err.println(usageError+"\n"+usage);
-						return;
+						throw new InputValidationException(usageError);
 					}
 					break;
 				case 2:
@@ -132,8 +154,7 @@ public class Main
 						queryParams.add(Constants.FEED_SERVICE_PARAMETER_START_DATE, dateRange[0]);
 						queryParams.add(Constants.FEED_SERVICE_PARAMETER_END_DATE, dateRange[1]);
 					}else{
-						System.err.println(usageError+"\n"+usage);
-						return;
+						throw new InputValidationException(usageError);
 					}
 					break;
 				default:
@@ -143,11 +164,13 @@ public class Main
 		logger.debug("Input paramter validation completed.");
 		
     	//Fetch the data from NASA site
-        //Rest client
+		
+        //Get Rest client
 		restClient = getRestClient();
 		
 		String neoDataCollectionJsonString = null;
 		try {
+			//The REST call
 			neoDataCollectionJsonString = (String) restClient
 					.callRestWebService(mainServiceUrl.toString(), queryParams, String.class);
 		} catch (RestClientException e) {
@@ -161,6 +184,7 @@ public class Main
 		 
 		NeoDataCollection neoDataCollection= null;;
 		try {
+			//Parse the REST service response
 			neoDataCollection = responseParser.parseFeedServiceJsonResponse(neoDataCollectionJsonString);
 		} catch (RestResponseParsingException e2) {
 			logger.error("Error while parsing the JSON response from REST service.");
@@ -169,6 +193,8 @@ public class Main
 		this.setNeoDataCollection(neoDataCollection);
 
 		// Process the data to find the largest neo and closest to the earth.
+		
+		//Initialize NEO processor used to process NEO raw data to get information of interest
 		try {
 			neoProcessor = getNeoProcessor();
 			neoProcessor.setNeoDataCollection(neoDataCollection);
@@ -177,11 +203,11 @@ public class Main
 			logger.error("Error in NEO processing."+e1);
 			return;
 		}
-		neoProcessor.setNeoDataCollection(neoDataCollection);
 		
 		logger.info("Finding the largest NEO.");
 		NeoLite largestNeo=null;
 		try {
+			//Use NEO processor to find largest NEO
 			largestNeo = neoProcessor.findLargestNeo();
 		} catch (NeoProcessorException e1) {
 			logger.error("Error in NEO processing."+e1);
@@ -189,17 +215,22 @@ public class Main
 		logger.info("Finding the closest NEO.");
 		NeoLite closestNeo=null;
 		try {
+			//Use NEO processor to find closest NEO
 			closestNeo = neoProcessor.findClosestNeo();
 		} catch (NeoProcessorException e1) {
 			logger.error("Error in NEO processing."+e1);
 		}
+		
+		//Print total NEO count to console
 		logger.info("TOTAL NO. OF NEOs is "+neoDataCollection.getElement_count());
 		System.out.println(" TOTAL NO. OF NEOs is "
 				+ neoDataCollection.getElement_count() + "\n");
 		
+		//Fetch Largest NEO details
 		logger.info("Fetching the largest NEO details.");
 		String largestNeoDetailsJsonString = null;
 		try {
+			//REST call to fetch the details of largest NEO
 			largestNeoDetailsJsonString = (String) restClient.callRestWebService(
 					Constants.NEO_SERVICE + Constants.NEO_BY_ID_SERVICE + largestNeo.getId(), queryParams, String.class);
 		} catch (RestClientException e) {
@@ -207,20 +238,24 @@ public class Main
 		}
 		
 		try {
+			//Parse REST response of largest NEO details 
 			NearEarthObject neoLargest = getResponseParser().parseNeoByIdServiceJsonResponse(largestNeoDetailsJsonString);
 			logger.info(
 					"===========================================================LARGEST NEO DEAILS===========================================================");
 			System.out.println(
 					"===========================================================LARGEST NEO DEAILS===========================================================");
+			//Print largest NEO details to console
 			printNeoDetails(neoLargest);
 			
 		} catch (RestResponseParsingException e) {
 			logger.error("Parsing of Detailed Neo object failed.");
 		}
 		
+		//Fetch closest NEO details
 		logger.info("Fetching the closest NEO details.");
 		String closestNeoDetailsJsonString = null;
 		try {
+			//REST call to fetch the details of largest NEO
 			closestNeoDetailsJsonString = (String) restClient.callRestWebService(
 					Constants.NEO_SERVICE + Constants.NEO_BY_ID_SERVICE + closestNeo.getId(), queryParams, String.class);
 		} catch (RestClientException e) {
@@ -228,11 +263,13 @@ public class Main
 		}
 		
 		try {
+			//Parse REST response of closest NEO details
 			NearEarthObject neoClosest = getResponseParser().parseNeoByIdServiceJsonResponse(closestNeoDetailsJsonString);
 			logger.info(
 					"===========================================================CLOSEST NEO DEAILS===========================================================");
 			System.out.println(
 					"===========================================================CLOSEST NEO DEAILS===========================================================");
+			//Print closest NEO details to console
 			printNeoDetails(neoClosest);
 			
 		} catch (RestResponseParsingException e) {
@@ -241,9 +278,12 @@ public class Main
 	}
     
 	/**
-	 * Method to check date format validity
-	 * @param dateParam date as a String
-	 * @return
+	 * <p>Method to check date format validity. Date is valid if,<br>
+	 *  	a. following normal date conventions such as month value is in 1 to 12 and date is in 1 to 31<br>
+	 *  	b. in yyyy-mm-dd format<br>
+	 *  	b. in case of date range, the difference between START_DATE and END_DATE is less than or equal to 7 days 
+	 * @param dateParams date as a String
+	 * @return validation response true or false
 	 */
     private static boolean isValid(String[] dateParams){
     	
@@ -264,7 +304,7 @@ public class Main
     		if(dates.size()==2 && dates.get(0)!=null && dates.get(1)!=null){
     			long duration = dates.get(1).getTime() - dates.get(0).getTime();
     			long days = TimeUnit.MILLISECONDS.toDays(duration);
-    			if(days > 7){
+    			if(days < 0 || days==0 || days > 7){
     				return false;
     			}
     		}	
@@ -276,8 +316,9 @@ public class Main
     }
     
     /**
-     * Method to print the details of Neo
-     * @param neo - a plain Near Earth Object
+     * A support method to print the details of NEO. 
+     * It has skeleton of print response which will be filled with values extracted from the NEO object passed as a parameter. 
+     * @param neo a plain Near Earth Object POJO
      */
     private static void printNeoDetails(NearEarthObject neo){
     	

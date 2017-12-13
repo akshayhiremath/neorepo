@@ -40,7 +40,6 @@ public class NeoProcessorTest {
 		neoProcessor = new NeoProcessor();
 
 		mockNeoDataCollection = mock(NeoDataCollection.class);
-		// mockNeoLite = mock(NeoLite.class);
 		mockNeoLiteList = mock(ArrayList.class);
 
 	}

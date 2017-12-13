@@ -17,6 +17,17 @@ import com.akshay.client.neo.rest.model.NeoDataCollection;
 import com.akshay.client.neo.rest.model.NeoLite;
 
 /**
+ * This is a core logic processor of the NEO utility. NeoProcessor is
+ * initialized with the a collection of raw Neo data fetched form NASA service.
+ * A raw Neo data collection is encapsulated in class
+ * {@link com.akshay.client.neo.rest.model.NeoDataCollection}. In initialization
+ * of NeoProcessor the raw Neo objects are converted to lighter Neo objects. The
+ * lighter Neo object {@link com.akshay.client.neo.rest.model.NeoLite}. NeoLite
+ * has only a limited number of attributes of Neo that are necessary to support
+ * the operations exposed by NeoProcessor.
+ * 
+ * The processor supports two operations findLargestNeo and findClosestNeo.
+ * 
  * @author AKSHAYH
  *
  */
@@ -29,7 +40,7 @@ public class NeoProcessor {
 	public NeoProcessor() {
 	}
 
-	public NeoProcessor(NeoDataCollection neoDataCollection) throws NeoProcessorException {
+	public NeoProcessor(final NeoDataCollection neoDataCollection) throws NeoProcessorException {
 		this.neoDataCollection = neoDataCollection;
 		this.neoLiteList = initialize();
 	}
@@ -42,7 +53,7 @@ public class NeoProcessor {
 		return neoDataCollection;
 	}
 
-	public void setNeoDataCollection(NeoDataCollection neoDataCollection) {
+	public void setNeoDataCollection(final NeoDataCollection neoDataCollection) {
 		this.neoDataCollection = neoDataCollection;
 	}
 
@@ -54,6 +65,15 @@ public class NeoProcessor {
 		this.neoLiteList = neoLiteList;
 	}
 
+	/**
+	 * Finds largest Neo object out of the collection of Neo objects for which
+	 * NeoProcessor is initialized.
+	 * 
+	 * @return the largest Neo object
+	 * @throws NeoProcessorException
+	 *             exception to report issue in NeoLite data. If this occurs check
+	 *             the NeoLite data generated in NeoProcessor initialization.
+	 */
 	public NeoLite findLargestNeo() throws NeoProcessorException {
 
 		Double estimate_diameter_min = 0.0;
@@ -87,6 +107,15 @@ public class NeoProcessor {
 		return largestNeo;
 	}
 
+	/**
+	 * Finds closest Neo object out of the collection of Neo objects for which
+	 * NeoProcessor is initialized.
+	 * 
+	 * @return the largest Neo object
+	 * @throws NeoProcessorException
+	 *             exception to report issue in NeoLite data. If this occurs check
+	 *             the NeoLite data generated in NeoProcessor initialization.
+	 */
 	public NeoLite findClosestNeo() throws NeoProcessorException {
 
 		Double lastLeastMissDistance = 9000000000.0;
@@ -110,6 +139,21 @@ public class NeoProcessor {
 		return closestNeo;
 	}
 
+	/**
+	 * This method prepares a list of stripped down and simplified version of raw
+	 * Neo data object. A raw Neo data object obtained from REST service response
+	 * has a lot of attributes that are unnecessary in processing logic of
+	 * operations in NeoProcessor. Also the raw Neo data object structure is complex
+	 * to iterate over and process a collection to get results. Here the
+	 * NeoDataCollection is processed to obtain a list of {@link com.akshay.client.neo.rest.model.NeoLite}
+	 * 
+	 * @param neoDataCollection
+	 *            a raw Neo data collection
+	 * @return a list of {@link com.akshay.client.neo.rest.model.NeoLite}, a refined
+	 *         Neo data collection.
+	 * @throws NeoProcessorException exception to report issue in NeoLite data. If this occurs check
+	 *             					the NeoLite data generated in NeoProcessor initialization.
+	 */
 	private ArrayList<NeoLite> prepareNeoLiteList(final NeoDataCollection neoDataCollection)
 			throws NeoProcessorException {
 

@@ -22,6 +22,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
+ * An utility to parse a REST service response in JSON format. If the REST
+ * service response structure is dynamic with fields varying on the fly the
+ * default unmarshalling to fixed structure objects won't be enough and the
+ * response JSON will be needed to be processed separately.
+ * This utility does this custom processing needed for the dynamic response.
+ * 
  * @author AKSHAYH
  *
  */
@@ -53,7 +59,20 @@ public class ResponseParserUtil {
 	public void setGsonParser(JsonParser gsonParser) {
 		this.gsonParser = gsonParser;
 	}
-
+	
+	/**
+	 * This method parses dynamic JSON from the NEO feed service. 
+	 * The response of the feed service may contain data for one or more days depending on the input period provided.
+	 * Even in case of single date, the field name varies every time the input changes.
+	 * e.g. the field <tt>near_earth_objects</tt> in JSON response may sometime have structure like<br>  
+	 * 				  <tt>"near_earth_objects": {2017-12-13": [...]},</tt><br>
+	 * and other time<br>
+	 * 				 <tt>"near_earth_objects": {"2017-12-02": [...], "2017-12-01": [...], "2017-12-04": [...], ...}</tt> 
+	 *   
+	 * @param jsonResponse - a JSON response in String format from the NEO feed service 
+	 * @return - instance of NeoDataCollection, a POJO encapsulating the raw data response from NEO feed service
+	 * @throws RestResponseParsingException - thrown for any error occurred during parsing a JSON response. The exception message will have pin pointing details of failure and cause
+	 */
 	public NeoDataCollection parseFeedServiceJsonResponse(final String jsonResponse)
 			throws RestResponseParsingException {
 
@@ -131,7 +150,13 @@ public class ResponseParserUtil {
 		}
 		return neoDataCollection;
 	}
-
+	/**
+	 * This method parses the response of REST service to find Neo by id. 
+	 * This response contains a details of particular NEO.
+	 * @param jsonResponse - a JSON response in String format from the NEO feed service
+	 * @return - instance of NearEarthObject, a POJO representing <i>individual</i> Near Earth Object 
+	 * @throws RestResponseParsingException - thrown for any error in parsing the JSON string using JacksonMapper
+	 */
 	public NearEarthObject parseNeoByIdServiceJsonResponse(final String jsonResponse)
 			throws RestResponseParsingException {
 		NearEarthObject neo = null;
@@ -144,7 +169,12 @@ public class ResponseParserUtil {
 		return neo;
 
 	}
-
+	
+	/**
+	 * A simple utility method to marshall a POJO to JSON string
+	 * @param object - an object intended to convert to string
+	 * @return - JSON string representation of the input object
+	 */
 	public String pojoToJson(final Object object) {
 
 		String jsonString = null;

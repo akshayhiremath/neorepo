@@ -14,7 +14,12 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * Near Earth Object (NEO) data fetch utility
+ * A wrapper REST web service client. This client internally uses the open
+ * source Jersey client implementation provided by Sun/Oracle. This client hides
+ * the details of HTTP calls and other handling needed to make a REST calls and
+ * obtaining a response. This exposes a simple REST call interface through
+ * method
+ * callRestWebService {@link com.akshay.client.neo.rest.service.RestWebServiceClient#callRestWebService(String, MultivaluedMap, Class)}.
  * 
  * @author AKSHAYH
  *
@@ -44,7 +49,18 @@ public class RestWebServiceClient {
 	public void setJerseyRestClient(Client jerseyRestClient) {
 		this.jerseyRestClient = jerseyRestClient;
 	}
-
+	/**
+	 * The user of the client just have to provide REST
+	 * service URL, query parameters if any and a POJO class in which the response
+	 * is expected to be encapsulated. If user is not sure of the response POJO structure or
+	 * have a dynamic response with fields varying on the fly then he can pass
+	 * String.class and parse the String response as per needs.
+	 * @param serviceUrl - an URL of the REST service to hit
+	 * @param paramMap - a map containing Query parameters key, value pairs
+	 * @param responseClass - a class to which response is expected to be unmarshalled into
+	 * @return REST service response object
+	 * @throws RestClientException - An exception occurred while consuming the REST service. Details of problem are in the message of the exception. 
+	 */
 	public Object callRestWebService(final String serviceUrl, final MultivaluedMap<String, String> paramMap,
 			final Class<?> responseClass) throws RestClientException {
 
@@ -68,12 +84,12 @@ public class RestWebServiceClient {
 					+ ((endTime - startTime) / 1000) + " secs");
 
 			if (response != null && response.getStatusInfo() != null) {
-				
-				if(response.getStatusInfo().getStatusCode()==429){
+
+				if (response.getStatusInfo().getStatusCode() == 429) {
 					throw new RestClientException("NASA api visit limit exceeded.");
 				}
 				restResponseStatus = ClientResponse.Status.fromStatusCode(response.getStatusInfo().getStatusCode());
-				
+
 			} else {
 				final String restClientResponseMessage = "REST Web Service call failed. Response or the ResponseInfo is null.";
 				logger.error(restClientResponseMessage);
@@ -82,7 +98,7 @@ public class RestWebServiceClient {
 			if (restResponseStatus.equals(Status.OK)) {
 				logger.info("REST Web Service call SUCCEEDED.");
 				return response.getEntity(responseClass);
-			} else{
+			} else {
 				// Consuming the response to avoid connection leakage
 				response.getEntity(String.class);
 				logger.error("Error occured in REST Web Service call. Response is not OK. Response is: "
@@ -102,7 +118,10 @@ public class RestWebServiceClient {
 		}
 
 	}
-
+	/**
+	 * Private method initializing the underlying Jersey client.
+	 * Jersey client is instantiated and basic properties related to timeout are set.
+	 */
 	private void initializeRestClient() {
 		if (getJerseyRestClient() == null) {
 			setJerseyRestClient(Client.create());
