@@ -5,14 +5,11 @@
 --Setup
 ================================================
 Extract the neorepo.zip anywhere on your PC. 
-This directory named neorepo contains 4 items,
+This directory named neorepo contains 3 items,
 
 1. src/ -> directory with source code of NeoUtility
 2. pom.xml -> POM file of the Neo maven project of Java nature
-3. lib/ -> directory containing external libraries that 
-	   Neo Utility will need at RUNTIME
-4. NeoUtility.bat -> A script file to fire the utility on windows.
-5. README.txt -> A qucik user guide i.e. the file you are currently reading.
+3. README.txt -> This quick user guide, the file you are currently reading :)
 
 --Build Process
 ================================================
@@ -33,8 +30,14 @@ Once you have maven in place.
 
 --Executing the NeoUtility
 =================================================
-Once you have got SUCCESS in the build process above.
-You can run NeoUtility.
+Once you have got SUCCESS in the build process above, you will find the executables in target directory.
+To run NeoUtility. 
+Go to target and you will find two NeoUtility files 
+	one with extension .bat and other with extension .sh
+Use appropriate version based on your OS.
+
+You can also execute the jar by using:
+java -Djava.net.useSystemProxies=true -jar neo-1.1.0-SNAPSHOT-jar-with-dependencies.jar START_DATE END_DATE
 
 NeoUtility has 3 simple options to fetch the data of Near Earth Objects(NEO) 
 from REST service exposed by NASA.
@@ -53,11 +56,11 @@ For each option, you have to following commands respectively:
 1. Go to neorepo/ directory on command line.
 2. Run:
 	a. For Data for today):
-		NeoUtility.bat 
+		NeoUtility 
 	b. For Data between 2 dates:
-		NeoUtility.bat <START_DATE> <END_DATE>
+		NeoUtility <START_DATE> <END_DATE>
 	c. For Data for 7 days from start date of your choice:
-		NeoUtility.bat <START_DATE>
+		NeoUtility <START_DATE>
 
 After execution, the utility will wait for you to see the response. 
 You can press any key to exit the window.
@@ -65,7 +68,7 @@ You can press any key to exit the window.
 --Clean Up
 =================================================
 1. After you are done using the utility. All other directories files in neorepo 
-except the above mentioned 4 could
+except the above mentioned 2 could
 be deleted.
 
 Thanks!!
