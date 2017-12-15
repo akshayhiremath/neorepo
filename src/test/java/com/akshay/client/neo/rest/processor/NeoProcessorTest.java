@@ -31,7 +31,6 @@ public class NeoProcessorTest {
 
 	private NeoProcessor neoProcessor = null;
 	private NeoDataCollection mockNeoDataCollection = null;
-	// private NeoLite mockNeoLite = null;
 	private ArrayList<NeoLite> mockNeoLiteList = null;
 
 	@Before
@@ -48,7 +47,7 @@ public class NeoProcessorTest {
 	public void testNeoProcessorWhenNeoDataCollectionIsNull() {
 
 		try {
-			neoProcessor.initialize();
+			neoProcessor.initialize(null);
 			fail("Exception must have occured.");
 		} catch (NeoProcessorException e) {
 
@@ -58,13 +57,24 @@ public class NeoProcessorTest {
 	}
 
 	@Test
-	public void testNeoProcessorWhenNeoDataIsNullInDataCollection() {
-
-		neoProcessor.setNeoDataCollection(mockNeoDataCollection);
-		when(mockNeoDataCollection.getNear_earth_objects()).thenReturn(null);
-		try {
-			neoProcessor.initialize();
+	public void testNeoProcessorAttemptToInitializeWithNullInDataCollection() {
+		try {	
+			neoProcessor = new NeoProcessor(null);
 		} catch (NeoProcessorException e) {
+			System.out.println(e.getMessage());
+			assertTrue(e.getMessage().contains("The NeoDataCollection POJO is null."));
+		}
+
+	}
+	
+	@Test
+	public void testNeoProcessorFailOnNullNeoListInsideNonNullNeoDataCollection() {
+		try {	
+			NeoDataCollection neoDataCollection = new NeoDataCollection();
+			neoDataCollection.setNear_earth_objects(null);
+			neoProcessor = new NeoProcessor(neoDataCollection);
+		} catch (NeoProcessorException e) {
+			System.out.println(e.getMessage());
 			assertTrue(e.getMessage().contains("NEO list in the NeoDataCollection POJO is null."));
 		}
 

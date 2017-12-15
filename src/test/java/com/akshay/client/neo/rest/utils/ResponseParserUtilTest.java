@@ -35,9 +35,10 @@ public class ResponseParserUtilTest {
 	
 	@Before
 	public void setUp(){
-		mockJacksonMapper = mock(ObjectMapper.class);
-//		PowerMockito.spy(JsonParser.class); //TODO final class can't mock directly. see later :-( 
+		mockJacksonMapper = mock(ObjectMapper.class); 
 		jsonResponseParser = new ResponseParserUtil();
+		jsonResponseParser.setJacksonMapper(new ObjectMapper());
+		jsonResponseParser.init();
 	}
 
 	

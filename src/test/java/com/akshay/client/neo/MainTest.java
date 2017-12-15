@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 import static com.akshay.client.neo.rest.utils.Constants.usageError;
 
 import java.io.OutputStream;
@@ -36,7 +37,7 @@ public class MainTest {
 	Main main = null;
 	private RestWebServiceClient mockRestClient = null;
 	private ResponseParserUtil mockResponseParser = null;
-	private NeoDataCollection mockNeoDataCollection = null;
+//	private NeoDataCollection mockNeoDataCollection = null;
 	private NeoProcessor mockNeoProcessor = null;
 
 	public MainTest() {
@@ -50,9 +51,7 @@ public class MainTest {
 		mockRestClient = mock(RestWebServiceClient.class);
 		mockResponseParser = mock(ResponseParserUtil.class);
 		mockNeoProcessor = mock(NeoProcessor.class);
-		mockNeoDataCollection = mock(NeoDataCollection.class);
-
-		main.setNeoDataCollection(mockNeoDataCollection);
+		
 		main.setRestClient(mockRestClient);
 		main.setResponseParser(mockResponseParser);
 		main.setNeoProcessor(mockNeoProcessor);
@@ -86,7 +85,7 @@ public class MainTest {
 	public void testNeoProcessorFailure() {
 		try {
 			String[] dateRange = { "2017-11-04", "2017-11-10" };
-			when(mockNeoProcessor.initialize()).thenThrow(new NeoProcessorException("Exception in initialization"));
+			doThrow(new NeoProcessorException("Exception in initialization")).when(mockNeoProcessor).initialize(anyObject());
 			main.execute(dateRange);
 
 		} catch (NeoProcessorException e) {
@@ -104,7 +103,7 @@ public class MainTest {
 					(Class) anyObject())).thenReturn("{ }");
 			when(mockResponseParser.parseFeedServiceJsonResponse(anyString()))
 					.thenThrow(new RestResponseParsingException("Exception in REST response parser."));
-			when(mockNeoProcessor.initialize()).thenThrow(new NeoProcessorException("Exception in initialization"));
+			doThrow(new NeoProcessorException("Exception in initialization")).when(mockNeoProcessor).initialize(anyObject());
 			main.execute(dateRange);
 
 		} catch (RestResponseParsingException e) {

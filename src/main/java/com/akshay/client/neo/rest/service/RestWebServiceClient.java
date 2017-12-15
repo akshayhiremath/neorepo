@@ -4,6 +4,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Required;
 
 import com.akshay.client.neo.rest.exception.RestClientException;
 import com.sun.jersey.api.client.Client;
@@ -27,26 +28,19 @@ import com.sun.jersey.api.client.WebResource;
 public class RestWebServiceClient {
 
 	private static final Logger logger = Logger.getLogger(RestWebServiceClient.class);
-
+	
 	private Client jerseyRestClient;
 
 	public RestWebServiceClient() {
 		// Initializing RestClient
-		initializeRestClient();
-	}
-
-	public RestWebServiceClient(Client jerseyRestClient) {
-		super();
-		this.jerseyRestClient = jerseyRestClient;
-		// Initializing RestClient
-		initializeRestClient();
+		init();
 	}
 
 	public Client getJerseyRestClient() {
 		return jerseyRestClient;
 	}
-
-	public void setJerseyRestClient(Client jerseyRestClient) {
+	
+	public void setJerseyRestClient(final Client jerseyRestClient) {
 		this.jerseyRestClient = jerseyRestClient;
 	}
 	/**
@@ -122,7 +116,7 @@ public class RestWebServiceClient {
 	 * Private method initializing the underlying Jersey client.
 	 * Jersey client is instantiated and basic properties related to timeout are set.
 	 */
-	private void initializeRestClient() {
+	private void init() {
 		if (getJerseyRestClient() == null) {
 			setJerseyRestClient(Client.create());
 		}

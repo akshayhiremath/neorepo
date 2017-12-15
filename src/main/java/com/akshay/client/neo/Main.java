@@ -13,6 +13,9 @@ import static com.akshay.client.neo.rest.utils.Constants.neoUsage;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.akshay.client.neo.rest.exception.InputValidationException;
 import com.akshay.client.neo.rest.exception.NeoProcessorException;
@@ -60,11 +63,12 @@ public class Main
 {
 	private static final Logger logger = Logger.getLogger(Main.class);
 	
-	
-	private RestWebServiceClient restClient = null;
-	private ResponseParserUtil responseParser = null;
-	private NeoDataCollection neoDataCollection = null;
-	private NeoProcessor neoProcessor = null;
+	@Autowired
+	private RestWebServiceClient restClient;
+	@Autowired
+	private ResponseParserUtil responseParser;
+	@Autowired
+	private NeoProcessor neoProcessor;
 
 	public RestWebServiceClient getRestClient() {
 		return restClient;
@@ -89,14 +93,6 @@ public class Main
 	public void setNeoProcessor(NeoProcessor neoProcessor) {
 		this.neoProcessor = neoProcessor;
 	}
-
-	public NeoDataCollection getNeoDataCollection() {
-		return neoDataCollection;
-	}
-
-	public void setNeoDataCollection(NeoDataCollection neoDataCollection) {
-		this.neoDataCollection = neoDataCollection;
-	}
 	
 	/**
 	 * <p>The main method of the application. The starting point.
@@ -109,14 +105,11 @@ public class Main
 	 */
 	public static void main(String[] args)
     {   
-		Main mainInstance = new Main();
-		
+		ApplicationContext neoContext = new ClassPathXmlApplicationContext("neo-applicationContext.xml");
+		Main main = (Main)neoContext.getBean("main"); 
 		String[] dateRange = args;
-		mainInstance.setRestClient(new RestWebServiceClient());
-		mainInstance.setResponseParser(new ResponseParserUtil());
-		mainInstance.setNeoProcessor(new NeoProcessor());
 		try {
-				mainInstance.execute(dateRange);
+				main.execute(dateRange);
 		}catch(InputValidationException e){
 			System.err.println(usageError);
 		}
@@ -182,23 +175,20 @@ public class Main
 		logger.debug("REST call to the service is done.");
 		logger.debug("Parsing the JSON response of Feed Service.");
 		 
-		NeoDataCollection neoDataCollection= null;;
+		NeoDataCollection neoDataCollection= null;
 		try {
 			//Parse the REST service response
 			neoDataCollection = responseParser.parseFeedServiceJsonResponse(neoDataCollectionJsonString);
 		} catch (RestResponseParsingException e2) {
 			logger.error("Error while parsing the JSON response from REST service.");
 		}
-		
-		this.setNeoDataCollection(neoDataCollection);
 
 		// Process the data to find the largest neo and closest to the earth.
 		
 		//Initialize NEO processor used to process NEO raw data to get information of interest
 		try {
 			neoProcessor = getNeoProcessor();
-			neoProcessor.setNeoDataCollection(neoDataCollection);
-			neoProcessor.setNeoLiteList(neoProcessor.initialize());
+			neoProcessor.initialize(neoDataCollection);
 		} catch (NeoProcessorException e1) {
 			logger.error("Error in NEO processing."+e1);
 			return;

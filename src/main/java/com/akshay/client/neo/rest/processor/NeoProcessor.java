@@ -17,14 +17,18 @@ import com.akshay.client.neo.rest.model.NeoDataCollection;
 import com.akshay.client.neo.rest.model.NeoLite;
 
 /**
- * This is a core logic processor of the NEO utility. NeoProcessor is
- * initialized with the a collection of raw Neo data fetched form NASA service.
- * A raw Neo data collection is encapsulated in class
- * {@link com.akshay.client.neo.rest.model.NeoDataCollection}. In initialization
- * of NeoProcessor the raw Neo objects are converted to lighter Neo objects. The
- * lighter Neo object {@link com.akshay.client.neo.rest.model.NeoLite}. NeoLite
- * has only a limited number of attributes of Neo that are necessary to support
- * the operations exposed by NeoProcessor.
+ * This is a core logic processor of the NEO utility. NeoProcessor needs to be
+ * initialized with the a collection of raw Neo data collection
+ * {@link com.akshay.client.neo.rest.model.NeoDataCollection} Raw Neo data
+ * collection could be passed to the constructor at the time of instantiation or
+ * it could be passed to of NeoProcessor by separate call to initialize. The
+ * later option is useful when NeoDataCollection is being generated dynamically
+ * and is not ready at the time instantiating the NeoProcessor. The Neo utility is
+ * passing a raw Neo data collection dynamically fetched from NASA service.
+ * In the initialization, the raw Neo objects are converted to lighter Neo objects. 
+ * The lighter Neo object is {@link com.akshay.client.neo.rest.model.NeoLite}.
+ *  NeoLite has only a limited number of attributes of Neo that are necessary to support the
+ * operations exposed by NeoProcessor.
  * 
  * The processor supports two operations findLargestNeo and findClosestNeo.
  * 
@@ -34,27 +38,17 @@ import com.akshay.client.neo.rest.model.NeoLite;
 public class NeoProcessor {
 
 	private static Logger logger = Logger.getLogger(NeoProcessor.class);
-	private NeoDataCollection neoDataCollection = null;
-	private ArrayList<NeoLite> neoLiteList = null;
+	private ArrayList<NeoLite> neoLiteList;
 
 	public NeoProcessor() {
 	}
 
 	public NeoProcessor(final NeoDataCollection neoDataCollection) throws NeoProcessorException {
-		this.neoDataCollection = neoDataCollection;
-		this.neoLiteList = initialize();
+			initialize(neoDataCollection);
 	}
 
-	public ArrayList<NeoLite> initialize() throws NeoProcessorException {
-		return prepareNeoLiteList(this.neoDataCollection);
-	}
-
-	public NeoDataCollection getNeoDataCollection() {
-		return neoDataCollection;
-	}
-
-	public void setNeoDataCollection(final NeoDataCollection neoDataCollection) {
-		this.neoDataCollection = neoDataCollection;
+	public void initialize(final NeoDataCollection neoDataCollection) throws NeoProcessorException {
+			setNeoLiteList(prepareNeoLiteList(neoDataCollection));
 	}
 
 	public ArrayList<NeoLite> getNeoLiteList() {

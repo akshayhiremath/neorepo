@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.akshay.client.neo.rest.exception.RestResponseParsingException;
 import com.akshay.client.neo.rest.model.NearEarthObject;
@@ -34,14 +35,12 @@ import com.google.gson.JsonParser;
 public class ResponseParserUtil {
 
 	private static Logger logger = Logger.getLogger(ResponseParserUtil.class);
-	private ObjectMapper jacksonMapper = null;
-	private JsonParser gsonParser = null;
+	@Autowired
+	private ObjectMapper jacksonMapper;
+	@Autowired
+	private JsonParser gsonParser;
 
 	public ResponseParserUtil() {
-		jacksonMapper = new ObjectMapper();
-		jacksonMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-		jacksonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		gsonParser = new JsonParser();
 	}
 
 	public ObjectMapper getJacksonMapper() {
@@ -186,6 +185,13 @@ public class ResponseParserUtil {
 		}
 
 		return jsonString;
+	}
+	/**
+	 * Initialization method will be executed after bean instantiation
+	 */
+	public void init() {
+		jacksonMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+		jacksonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 }
