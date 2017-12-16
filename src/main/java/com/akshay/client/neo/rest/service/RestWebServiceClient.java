@@ -4,7 +4,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import com.akshay.client.neo.rest.exception.RestClientException;
 import com.sun.jersey.api.client.Client;
@@ -112,9 +111,10 @@ public class RestWebServiceClient {
 		}
 
 	}
+	
 	/**
 	 * Private method initializing the underlying Jersey client.
-	 * Jersey client is instantiated and basic properties related to timeout are set.
+	 * Here the Sun Jersey client is instantiated and basic properties related to timeout are set.
 	 */
 	private void init() {
 		if (getJerseyRestClient() == null) {
