@@ -4,6 +4,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import com.akshay.client.neo.rest.exception.RestClientException;
 import com.sun.jersey.api.client.Client;
@@ -24,6 +25,7 @@ import com.sun.jersey.api.client.WebResource;
  * @author AKSHAYH
  *
  */
+@Component
 public class RestWebServiceClient {
 
 	private static final Logger logger = Logger.getLogger(RestWebServiceClient.class);

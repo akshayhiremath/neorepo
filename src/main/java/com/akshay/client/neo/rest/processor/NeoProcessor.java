@@ -6,6 +6,7 @@ package com.akshay.client.neo.rest.processor;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import com.akshay.client.neo.rest.exception.NeoProcessorException;
 import com.akshay.client.neo.rest.model.CloseApproachDatum;
@@ -35,7 +36,8 @@ import com.akshay.client.neo.rest.model.NeoLite;
  * @author AKSHAYH
  *
  */
-public class NeoProcessor {
+@Component
+public class NeoProcessor{
 
 	private static Logger logger = Logger.getLogger(NeoProcessor.class);
 	private ArrayList<NeoLite> neoLiteList;

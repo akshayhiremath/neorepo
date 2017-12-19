@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.akshay.client.neo.rest.exception.RestResponseParsingException;
 import com.akshay.client.neo.rest.model.NearEarthObject;
@@ -32,6 +35,7 @@ import com.google.gson.JsonParser;
  * @author AKSHAYH
  *
  */
+@Component
 public class ResponseParserUtil {
 
 	private static Logger logger = Logger.getLogger(ResponseParserUtil.class);
@@ -189,6 +193,7 @@ public class ResponseParserUtil {
 	/**
 	 * Initialization method will be executed after bean instantiation
 	 */
+	@PostConstruct
 	public void init() {
 		jacksonMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		jacksonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

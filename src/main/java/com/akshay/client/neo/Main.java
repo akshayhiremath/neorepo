@@ -1,14 +1,14 @@
 package com.akshay.client.neo;
 
+import static com.akshay.client.neo.rest.utils.Constants.neoIntroduction;
+import static com.akshay.client.neo.rest.utils.Constants.neoUsage;
+import static com.akshay.client.neo.rest.utils.Constants.usageError;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import static com.akshay.client.neo.rest.utils.Constants.usageError;
-import static com.akshay.client.neo.rest.utils.Constants.neoIntroduction;
-import static com.akshay.client.neo.rest.utils.Constants.neoUsage;
-
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 import com.akshay.client.neo.rest.exception.InputValidationException;
 import com.akshay.client.neo.rest.exception.NeoProcessorException;
@@ -59,6 +60,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
  * @author AKSHAYH
  *
  */
+@Component
 public class Main 
 {
 	private static final Logger logger = Logger.getLogger(Main.class);
