@@ -4,6 +4,7 @@
 package com.akshay.client.neo.rest.processor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -71,29 +72,17 @@ public class NeoProcessor{
 	 *             the NeoLite data generated in NeoProcessor initialization.
 	 */
 	public NeoLite findLargestNeo() throws NeoProcessorException {
-
-		Double estimate_diameter_min = 0.0;
-		Double estimate_diameter_max = 0.0;
-		Double averageDiameter = 0.0;
-		Double lastLargestAvgDiameter = 0.0;
+		
 		NeoLite largestNeo = null;
-		for (NeoLite neoLite : getNeoLiteList()) {
-			if (neoLite != null) {
-				estimate_diameter_max = neoLite.getEstimated_diameter_max_in_meters();
-				estimate_diameter_min = neoLite.getEstimated_diameter_min_in_meters();
+		try {
+			Comparator<NeoLite> comp = (n1, n2) -> Double.compare(
+					(n1.getEstimated_diameter_max_in_meters() + n1.getEstimated_diameter_min_in_meters()) / 2,
+					(n2.getEstimated_diameter_max_in_meters() + n2.getEstimated_diameter_min_in_meters()) / 2);
+			largestNeo = getNeoLiteList().stream().max(comp).get();
 
-				if (estimate_diameter_max != null && estimate_diameter_min != null) {
-					averageDiameter = (estimate_diameter_max + estimate_diameter_min) / 2;
-					if (averageDiameter > lastLargestAvgDiameter) {
-						largestNeo = neoLite;
-						lastLargestAvgDiameter = averageDiameter;
-					}
-				} else {
-					logger.trace("Neo Id: " + neoLite.getId() + " -> estimated_diameter_max or min is null.");
-				}
-			} else {
-				logger.trace("Null NeoLite instance found.");
-			}
+		} catch (NullPointerException npe) {
+			logger.trace("Null NeoLite instance found in NeoLite list OR estimated_diameter_max or min is null.");
+			throw new NeoProcessorException("Null NeoLite instance found in NeoLite list.");
 		}
 
 		if (largestNeo == null) {
@@ -113,22 +102,17 @@ public class NeoProcessor{
 	 *             the NeoLite data generated in NeoProcessor initialization.
 	 */
 	public NeoLite findClosestNeo() throws NeoProcessorException {
-
-		Double lastLeastMissDistance = 9000000000.0;
-		Double missDistanceInKms = 0.0;
+		
 		NeoLite closestNeo = null;
-		for (NeoLite neoLite : getNeoLiteList()) {
-			if (neoLite != null) {
-				missDistanceInKms = neoLite.getMiss_distance_in_kilometers();
-
-				if (missDistanceInKms > 0 && missDistanceInKms < lastLeastMissDistance) {
-					lastLeastMissDistance = missDistanceInKms;
-					closestNeo = neoLite;
-				}
-			} else {
-				logger.trace("Null NeoLite instance found.");
-			}
+		try {
+			final Comparator<NeoLite> comp = (n1, n2) -> Double.compare(n1.getMiss_distance_in_kilometers(),
+					n2.getMiss_distance_in_kilometers());
+			closestNeo = getNeoLiteList().stream().min(comp).get();
+		} catch (NullPointerException npe) {
+			logger.trace("Null NeoLite instance found.");
+			throw new NeoProcessorException("Null NeoLite instance found in NeoLite list.");
 		}
+
 		if (closestNeo == null) {
 			throw new NeoProcessorException("Largest Neo finding failed. Problem with data in NeoLite list.");
 		}
@@ -159,65 +143,69 @@ public class NeoProcessor{
 			throw new NeoProcessorException("The NeoDataCollection POJO is null.");
 		}
 
-		ArrayList<ArrayList<NearEarthObject>> neoList = neoDataCollection.getNear_earth_objects();
-		if (neoList == null) {
+		ArrayList<ArrayList<NearEarthObject>> neoListBundle  = neoDataCollection.getNear_earth_objects();
+		if (neoListBundle == null) {
 			logger.error(
 					"Error while initializing the NeoProcessor. NEO list in the NeoDataCollection POJO is null.  Plz check JSON response parser output.");
 			throw new NeoProcessorException("NEO list in the NeoDataCollection POJO is null.");
 		}
 		ArrayList<NeoLite> neoLiteListLocal = new ArrayList<>();
-		NeoLite neoLite = null;
-		EstimatedDiameter estimatedDiameter = null;
-		Meters meters = null;
+		logger.debug(
+				"Iterating over the NEO list to gather necessary data to form NEO Lite objects' list with necessary information");
+			// Iterate over the NEO list to gather necessary data to form NEO
+			// Lite objects' list with necessary information
+			neoListBundle.stream().flatMap(neoList -> neoList.stream()).forEach(neo -> transformRawNeo(neo,neoLiteListLocal));
 
+		return neoLiteListLocal;
+	}
+	
+	/**
+	 * Method to transform individual raw Neo to ligher Neo
+	 * @param neo Raw Neo object to transform
+	 * @param neoLiteList list reference to collect transformed lighter Neo 
+	 */
+	private static void transformRawNeo(NearEarthObject neo, ArrayList<NeoLite> neoLiteList) {
 		ArrayList<CloseApproachDatum> cadList = null;
 		CloseApproachDatum closeApproachData = null;
 		MissDistance missDistance = null;
-		logger.debug(
-				"Iterating over the NEO list to gather necessary data to form NEO Lite objects' list with necessary information");
-		for (ArrayList<NearEarthObject> neosOnDate : neoList) {
-			// Iterate over the NEO list to gather necessary data to form NEO
-			// Lite objects' list with necessary information
-			for (NearEarthObject neo : neosOnDate) {
-				neoLite = new NeoLite();
-				if (neo != null) {
-					neoLite.setId((neo.getNeo_reference_id()));
-					neoLite.setName(neo.getName());
-					estimatedDiameter = neo.getEstimated_diameter();
-					if (estimatedDiameter != null) {
-						meters = estimatedDiameter.getMeters();
-						if (meters != null) {
-							neoLite.setEstimated_diameter_min_in_meters(meters.getEstimatedDiameterMin());
-							neoLite.setEstimated_diameter_max_in_meters(meters.getEstimatedDiameterMax());
-						} else {
-							logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> meters is null.");
-						}
-					} else {
-						logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> estimated_diameter is null.");
-					}
-					cadList = neo.getClose_approach_data();
-					if (cadList != null) {
-						closeApproachData = cadList.get(0);
-						if (closeApproachData != null) {
-							neoLite.setDate(closeApproachData.getClose_approach_date());
-							missDistance = closeApproachData.getMiss_distance();
-						} else {
-							logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> close_approach_data is null.");
-						}
-						if (missDistance != null) {
-							neoLite.setMiss_distance_in_kilometers(missDistance.getKilometers());
-							neoLite.setMiss_distance_in_miles(missDistance.getMiles());
-						} else {
-							logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> miss_distance is null.");
-						}
-					}
-
-					neoLiteListLocal.add(neoLite);
+		EstimatedDiameter estimatedDiameter = null;
+		Meters meters = null;
+		
+		NeoLite neoLite = new NeoLite();
+		if (neo != null) {
+			neoLite.setId((neo.getNeo_reference_id()));
+			neoLite.setName(neo.getName());
+			estimatedDiameter = neo.getEstimated_diameter();
+			if (estimatedDiameter != null) {
+				meters = estimatedDiameter.getMeters();
+				if (meters != null) {
+					neoLite.setEstimated_diameter_min_in_meters(meters.getEstimatedDiameterMin());
+					neoLite.setEstimated_diameter_max_in_meters(meters.getEstimatedDiameterMax());
+				} else {
+					logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> meters is null.");
+				}
+			} else {
+				logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> estimated_diameter is null.");
+			}
+			cadList = neo.getClose_approach_data();
+			if (cadList != null) {
+				closeApproachData = cadList.get(0);
+				if (closeApproachData != null) {
+					neoLite.setDate(closeApproachData.getClose_approach_date());
+					missDistance = closeApproachData.getMiss_distance();
+				} else {
+					logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> close_approach_data is null.");
+				}
+				if (missDistance != null) {
+					neoLite.setMiss_distance_in_kilometers(missDistance.getKilometers());
+					neoLite.setMiss_distance_in_miles(missDistance.getMiles());
+				} else {
+					logger.trace("Neo Id: " + neo.getNeo_reference_id() + " -> miss_distance is null.");
 				}
 			}
 		}
-
-		return neoLiteListLocal;
+		
+		neoLiteList.add(neoLite);
 	}
 
 }
