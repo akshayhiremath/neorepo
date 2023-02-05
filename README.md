@@ -40,7 +40,7 @@ Go to "target" and you will find two NeoUtility files
 Use appropriate version based on your OS.
 
 You can also execute the jar by using:
-java -Djava.net.useSystemProxies=true -jar neo-1.1.0-SNAPSHOT-jar-with-dependencies.jar START_DATE END_DATE
+java -Djava.net.useSystemProxies=true -jar neo-1.2.0-SNAPSHOT-jar-with-dependencies.jar START_DATE END_DATE
 
 NeoUtility has 3 simple options to fetch the data of Near Earth Objects(NEO) 
 from REST service exposed by NASA.
