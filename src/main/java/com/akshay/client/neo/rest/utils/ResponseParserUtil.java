@@ -67,10 +67,10 @@ public class ResponseParserUtil {
 	 * This method parses dynamic JSON from the NEO feed service. 
 	 * The response of the feed service may contain data for one or more days depending on the input period provided.
 	 * Even in case of single date, the field name varies every time the input changes.
-	 * e.g. the field <tt>near_earth_objects</tt> in JSON response may sometime have structure like<br>  
-	 * 				  <tt>"near_earth_objects": {2017-12-13": [...]},</tt><br>
+	 * e.g. the field <code>near_earth_objects</code> in JSON response may sometime have structure like<br>
+	 * 				  <code>"near_earth_objects": {2017-12-13": [...]},</code><br>
 	 * and other time<br>
-	 * 				 <tt>"near_earth_objects": {"2017-12-02": [...], "2017-12-01": [...], "2017-12-04": [...], ...}</tt> 
+	 * 				 <code>"near_earth_objects": {"2017-12-02": [...], "2017-12-01": [...], "2017-12-04": [...], ...}</code>
 	 *   
 	 * @param jsonResponse - a JSON response in String format from the NEO feed service 
 	 * @return - instance of NeoDataCollection, a POJO encapsulating the raw data response from NEO feed service

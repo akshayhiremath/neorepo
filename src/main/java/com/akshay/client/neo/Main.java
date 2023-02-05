@@ -46,8 +46,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
  	 *	As an input utility needs date range for which the user wants to query the data.<br>
 	 *
  	 *	<p>Usage:<br>
-     *           <tt>com.akshay.client.neo.Main START_DATE END_DATE<br>
-     *   			e.g. com.akshay.client.neo.Main 2017-11-04 2017-11-11</tt>
+     *           <code>com.akshay.client.neo.Main START_DATE END_DATE<br>
+     *   			e.g. com.akshay.client.neo.Main 2017-11-04 2017-11-11</code>
      *
      *           <p>Argument date format is yyyy-MM-dd<br>
      *           Maximum period between START_DATE and END_DATE could be 7 days<br>
@@ -183,6 +183,8 @@ public class Main
 			neoDataCollection = responseParser.parseFeedServiceJsonResponse(neoDataCollectionJsonString);
 		} catch (RestResponseParsingException e2) {
 			logger.error("Error while parsing the JSON response from REST service.");
+			e2.printStackTrace();
+			return;
 		}
 
 		// Process the data to find the largest neo and closest to the earth.
@@ -193,6 +195,7 @@ public class Main
 			neoProcessor.initialize(neoDataCollection);
 		} catch (NeoProcessorException e1) {
 			logger.error("Error in NEO processing."+e1);
+			e1.printStackTrace();
 			return;
 		}
 		
