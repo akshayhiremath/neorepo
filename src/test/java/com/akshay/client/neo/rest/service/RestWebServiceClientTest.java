@@ -1,9 +1,8 @@
 package com.akshay.client.neo.rest.service;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,7 +64,7 @@ public class RestWebServiceClientTest {
 		mockStatic(Status.class);
 
 		when(mockJerseyClient.resource(anyString())).thenReturn(mockWebResource);
-		when(mockWebResource.queryParams((MultivaluedMap<String, String>) anyObject())).thenReturn(mockWebResource);
+		when(mockWebResource.queryParams((MultivaluedMap<String, String>) any(MultivaluedMap.class))).thenReturn(mockWebResource);
 		when(mockWebResource.accept(MediaType.APPLICATION_JSON)).thenReturn(mockBuilder);
 		when(mockBuilder.header("content-type", MediaType.APPLICATION_JSON)).thenReturn(mockBuilder);
 
@@ -79,11 +78,11 @@ public class RestWebServiceClientTest {
 			when(mockClientResponse.getStatusInfo()).thenReturn(mockStatusInfo);
 			when(mockStatusInfo.getStatusCode()).thenReturn(200);
 			when(ClientResponse.Status.fromStatusCode(200)).thenReturn(ClientResponse.Status.OK);
-			when(mockClientResponse.getEntity((Class) anyObject())).thenReturn(new String("{ SUCCESS }"));
+			when(mockClientResponse.getEntity(any(Class.class))).thenReturn(new String("{ SUCCESS }"));
 			String response = (String) wsClient.callRestWebService(Constants.FEED_SERVICE_TODAY,
 					new MultivaluedMapImpl(), Class.class);
 
-			assertTrue((response.equals("{ SUCCESS }")));
+			assertEquals("{ SUCCESS }", response);
 
 		} catch (RestClientException ex) {
 			fail("Exception is not expected");
@@ -106,7 +105,7 @@ public class RestWebServiceClientTest {
 			when(mockStatusInfo.getStatusCode()).thenReturn(401);
 			when(ClientResponse.Status.fromStatusCode(401)).thenReturn(ClientResponse.Status.UNAUTHORIZED);
 
-			String response = (String) wsClient.callRestWebService(Constants.FEED_SERVICE_TODAY,
+			wsClient.callRestWebService(Constants.FEED_SERVICE_TODAY,
 					new MultivaluedMapImpl(), Class.class);
 
 			fail("RestClientException is expected for HTTP response 401");
@@ -155,7 +154,7 @@ public class RestWebServiceClientTest {
 			when(mockBuilder.get(ClientResponse.class)).thenReturn(mockClientResponse);
 			when(mockClientResponse.getStatusInfo()).thenReturn(mockStatusInfo);
 			when(mockStatusInfo.getStatusCode()).thenReturn(200);
-			// Random status(cod and message) is used here.
+			// Random status(code and message) is used here.
 			// The point is we will get ClientHandlerException if there is a
 			// problem while processing the HTTP Response object content in
 			// Jersey's getEntity
@@ -168,9 +167,9 @@ public class RestWebServiceClientTest {
 			// exposed as it is to the REST WS client user/consumer
 
 			when(ClientResponse.Status.fromStatusCode(200)).thenReturn(ClientResponse.Status.OK);
-			when(mockClientResponse.getEntity((Class) anyObject())).thenThrow(new ClientHandlerException());
+			when(mockClientResponse.getEntity(any(Class.class))).thenThrow(new ClientHandlerException());
 
-			String response = (String) wsClient.callRestWebService(Constants.FEED_SERVICE_TODAY,
+			wsClient.callRestWebService(Constants.FEED_SERVICE_TODAY,
 					new MultivaluedMapImpl(), Class.class);
 
 			fail("RestClientException is expected when Client Handler has failed to process the Response to form Java object in ClientResponse.getEntity");
