@@ -1,18 +1,14 @@
 package com.akshay.client.neo.rest.service;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-
-import org.apache.log4j.Logger;
+import com.akshay.client.neo.rest.exception.RestClientException;
+import com.sun.jersey.api.client.*;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.akshay.client.neo.rest.exception.RestClientException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 /**
  * A wrapper REST web service client. This client internally uses the open
@@ -28,7 +24,7 @@ import com.sun.jersey.api.client.WebResource;
 @Component
 public class RestWebServiceClient {
 
-	private static final Logger logger = Logger.getLogger(RestWebServiceClient.class);
+	private static final Logger logger = LogManager.getLogger(RestWebServiceClient.class);
 	
 	private Client jerseyRestClient;
 
