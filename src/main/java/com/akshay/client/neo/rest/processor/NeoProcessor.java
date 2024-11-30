@@ -6,7 +6,8 @@ package com.akshay.client.neo.rest.processor;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.akshay.client.neo.rest.exception.NeoProcessorException;
@@ -40,7 +41,7 @@ import com.akshay.client.neo.rest.model.NeoLite;
 @Component
 public class NeoProcessor{
 
-	private static Logger logger = Logger.getLogger(NeoProcessor.class);
+	private static Logger logger = LogManager.getLogger(NeoProcessor.class);
 	private ArrayList<NeoLite> neoLiteList;
 
 	public NeoProcessor() {

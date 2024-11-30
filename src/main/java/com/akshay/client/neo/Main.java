@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -63,7 +64,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 @Component
 public class Main 
 {
-	private static final Logger logger = Logger.getLogger(Main.class);
+	private static final Logger logger = LogManager.getLogger(Main.class);
 	
 	@Autowired
 	private RestWebServiceClient restClient;

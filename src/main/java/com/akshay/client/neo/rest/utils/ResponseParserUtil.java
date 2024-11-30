@@ -9,7 +9,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,7 @@ import com.google.gson.JsonParser;
 @Component
 public class ResponseParserUtil {
 
-	private static Logger logger = Logger.getLogger(ResponseParserUtil.class);
+	private static final Logger logger = LogManager.getLogger(ResponseParserUtil.class);
 	@Autowired
 	private ObjectMapper jacksonMapper;
 	@Autowired
